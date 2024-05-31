@@ -215,7 +215,8 @@ def generate_bert_embeddings(emb_model, tokenizer, recipe, device):
     for token in token_embeddings:
 
         # Sum the vectors from the last four layers.
-        sum_vec = torch.sum(token[-2:], dim=0)
+        layers_to_add = token[-2:]
+        sum_vec = torch.sum(layers_to_add, dim=0)
 
         # Use `sum_vec` to represent `token`.
         token_vecs_sum.append(sum_vec)

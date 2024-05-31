@@ -61,10 +61,10 @@ device = torch.device(CUDA_DEVICE if torch.cuda.is_available() else "cpu")
 flair.device = device
     
 parser = argparse.ArgumentParser(description = """Automatic Alignment model""")
-parser.add_argument('model_name', type=str, help="""Model Name; one of {'Simple', 'Naive', 'Alignment-no-feature', 'Alignment-with-feature'}""") # TODO: add options for fat graphs (with parents and grandparents)
+parser.add_argument('--model_name', type=str, default='Alignment-with-feature', help="""Model Name; one of {'Simple', 'Naive', 'Alignment-no-feature', 'Alignment-with-feature'}""") # TODO: add options for fat graphs (with parents and grandparents)
 parser.add_argument('--embedding_name', type=str, default='bert', help='Embedding Name (Default is bert, alternative: elmo)')
-parser.add_argument('--cuda-device', type=str, help="""Select cuda; default: cuda:0""")
-parser.add_argument('--fold', type=int, help="""Fold Number; number in range 1 to 10""")
+parser.add_argument('--cuda-device', type=str, default='0', help="""Select cuda; default: cuda:0""")
+parser.add_argument('--fold', type=int, default='10', help="""Fold Number; number in range 1 to 10""")
 args = parser.parse_args()
 
 model_name = args.model_name
@@ -383,8 +383,6 @@ class Folds_Train:
             Loss Function.
         device : object
             torch device where model tensors are saved.
-
-
         """
 
         valid_loss = 0.0
@@ -695,6 +693,9 @@ class Folds_Train:
         else:
             destination_folder = destination_folder2
 
+        if not os.path.exists(destination_folder):
+            os.makedirs(destination_folder)
+
         #print("-------Training starts-------")
 
         start = datetime.now()
@@ -787,8 +788,8 @@ class Folds_Train:
                 "Best_Epoch" : best_epoch,
                 "Final_Train_Accuracy" : final_train_accuracy
             }
-
-        fold_result_df = fold_result_df.append(fold_result, ignore_index=True)
+        fold_df = pd.DataFrame(fold_result, index = [0])
+        fold_result_df = pd.concat([fold_result_df, fold_df])
 
         print("--------------")
 
@@ -888,6 +889,9 @@ class Folds_Train:
         )  # , "Test_Dish1_accuracy", "Test_Dish2_accuracy"])
         
         destination_folder = destination_folder4
+        
+        if not os.path.exists(destination_folder):
+            os.makedirs(destination_folder)
         
         overall_predictions = 0
         overall_actions = 0 
